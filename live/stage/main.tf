@@ -55,6 +55,8 @@ module "eb_api" {
   service_role_arn      = var.eb_service_role_arn
   instance_profile_name = aws_iam_instance_profile.api_instance_profile.name
 
+  ec2_key_name     = aws_key_pair.eb_ssh.key_name
+  ssh_ingress_cidr = var.ssh_ingress_cidr
 
 }
 

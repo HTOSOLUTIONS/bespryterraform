@@ -85,3 +85,18 @@ variable "db_engine" {
     error_message = "db_engine must be one of: mysql, postgres"
   }
 }
+
+variable "ssh_ingress_cidr" {
+  type    = string
+  default = null
+}
+
+variable "developer_cidr" {
+  type    = string
+  default = null
+}
+
+variable "db_publicly_accessible" {
+  type    = bool
+  default = false
+}

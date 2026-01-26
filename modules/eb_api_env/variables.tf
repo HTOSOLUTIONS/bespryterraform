@@ -34,3 +34,16 @@ variable "env" {
   description = "Environment short name (dev|stage|prod)"
   type        = string
 }
+
+variable "ec2_key_name" {
+  description = "Optional EC2 key pair name to enable SSH access to EB instances."
+  type        = string
+  default     = null
+}
+
+variable "ssh_ingress_cidr" {
+  description = "Optional temporary CIDR allowed to SSH into EB instances."
+  type        = string
+  default     = null
+}
+

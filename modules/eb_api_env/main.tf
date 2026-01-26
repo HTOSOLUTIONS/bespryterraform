@@ -43,6 +43,21 @@ resource "aws_security_group" "eb_instance" {
 }
 
 
+resource "aws_security_group_rule" "ssh_from_dev" {
+  count             = var.ssh_ingress_cidr != null ? 1 : 0
+  type              = "ingress"
+  security_group_id = aws_security_group.eb_instance.id
+
+  from_port   = 22
+  to_port     = 22
+  protocol    = "tcp"
+  cidr_blocks = [var.ssh_ingress_cidr]
+
+  description = "TEMP SSH from developer machine"
+}
+
+
+
 resource "aws_elastic_beanstalk_environment" "this" {
   name        = var.env_name
   application = aws_elastic_beanstalk_application.this.name
@@ -154,4 +169,15 @@ resource "aws_elastic_beanstalk_environment" "this" {
       value     = setting.value
     }
   }
+  
+	dynamic "setting" {
+	  for_each = var.ec2_key_name != null ? [var.ec2_key_name] : []
+	  content {
+		namespace = "aws:autoscaling:launchconfiguration"
+		name      = "EC2KeyName"
+		value     = setting.value
+	  }
+	}
+  
+  
 }
