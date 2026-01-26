@@ -4,6 +4,12 @@ data "aws_route53_zone" "root" {
   private_zone = false
 }
 
+
+# No idea
+data "aws_caller_identity" "current" {}
+
+
+
 # 1) ACM cert for api.stage.bespry.net, DNS-validated in Route53
 module "api_cert" {
   source  = "../../modules/acm_api_cert"
@@ -17,6 +23,7 @@ module "eb_api" {
 
   app_name = "bespry-api"
   env_name = "bespry-api-${var.env}"
+  env      = var.env
 
   instance_type = var.instance_type
   min_size      = var.min_size
@@ -29,7 +36,18 @@ module "eb_api" {
 
   environment_variables = merge(
     {
-      APP_ENV                = "stage"
+      APP_ENV = "stage"
+      # app config
+      DB_HOST = module.db.endpoint
+      DB_NAME = module.db.db_name
+      DB_PORT = tostring(module.db.port)
+      DB_USER = var.db_username
+      DB_PASS = var.db_password
+
+      S3_BUCKET = module.app_bucket.bucket_name
+
+      COGNITO_USER_POOL_ID     = module.cognito.user_pool_id
+      COGNITO_USER_POOL_CLIENT = module.cognito.user_pool_client_id
     },
     var.api_env_vars
   )
@@ -42,10 +60,10 @@ module "eb_api" {
 
 # 3) Route53 record -> EB environment CNAME
 resource "aws_route53_record" "api_stage" {
-  depends_on = [module.eb_api]  # ensures env exists before DNS
-  zone_id = data.aws_route53_zone.root.zone_id
-  name    = local.api_fqdn
-  type    = "CNAME"
-  ttl     = 60
-  records = [module.eb_api.environment_cname]
+  depends_on = [module.eb_api] # ensures env exists before DNS
+  zone_id    = data.aws_route53_zone.root.zone_id
+  name       = local.api_fqdn
+  type       = "CNAME"
+  ttl        = 60
+  records    = [module.eb_api.environment_cname]
 }

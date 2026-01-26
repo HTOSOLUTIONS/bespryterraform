@@ -29,3 +29,8 @@ variable "service_role_arn" {
 variable "instance_profile_name" {
   type = string
 }
+
+variable "env" {
+  description = "Environment short name (dev|stage|prod)"
+  type        = string
+}

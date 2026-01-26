@@ -28,6 +28,21 @@ resource "aws_elastic_beanstalk_application" "this" {
   name = var.app_name
 }
 
+resource "aws_security_group" "eb_instance" {
+  name        = "${var.env_name}-eb-instances"
+  description = "Security group for EB EC2 instances"
+  vpc_id      = local.resolved_vpc_id
+
+	tags = {
+	  Name      = "${var.env_name}-eb-instances"
+	  App       = var.app_name
+	  Env       = var.env
+	  ManagedBy = "Terraform"
+	}
+
+}
+
+
 resource "aws_elastic_beanstalk_environment" "this" {
   name        = var.env_name
   application = aws_elastic_beanstalk_application.this.name
@@ -123,6 +138,11 @@ resource "aws_elastic_beanstalk_environment" "this" {
 	  value     = var.instance_profile_name
 	}
 
+  setting {
+    namespace = "aws:autoscaling:launchconfiguration"
+    name      = "SecurityGroups"
+    value     = aws_security_group.eb_instance.id
+  }
 
 
 

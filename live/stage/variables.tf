@@ -57,3 +57,31 @@ variable "eb_service_role_arn" {
   type    = string
   default = "arn:aws:iam::891377401485:role/service-role/aws-elasticbeanstalk-service-role-bespry"
 }
+
+variable "db_name" {
+  type    = string
+  default = "appdb"
+}
+
+
+variable "db_username" {
+  type    = string
+  default = "app_admin"
+}
+
+
+variable "db_password" {
+  type      = string
+  sensitive = true
+}
+
+variable "db_engine" {
+  description = "Database engine for this stack. Valid: mysql | postgres"
+  type        = string
+  default     = "mysql"
+
+  validation {
+    condition     = contains(["mysql", "postgres"], var.db_engine)
+    error_message = "db_engine must be one of: mysql, postgres"
+  }
+}

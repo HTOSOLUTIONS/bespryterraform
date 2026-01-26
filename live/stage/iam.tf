@@ -16,13 +16,13 @@ resource "aws_iam_role" "api_ec2_role" {
 
 # Baseline permissions commonly required for EB web apps
 resource "aws_iam_role_policy_attachment" "eb_webtier" {
-  role      = aws_iam_role.api_ec2_role.name
+  role       = aws_iam_role.api_ec2_role.name
   policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier"
 }
 
 # Attach your existing Cognito admin policy (used by the API)
 resource "aws_iam_role_policy_attachment" "cognito_admin" {
-  role      = aws_iam_role.api_ec2_role.name
+  role       = aws_iam_role.api_ec2_role.name
   policy_arn = "arn:aws:iam::891377401485:policy/aws-cognito-user-admin"
 }
 
