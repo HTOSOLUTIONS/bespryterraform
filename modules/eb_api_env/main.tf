@@ -106,38 +106,6 @@ resource "aws_elastic_beanstalk_environment" "this" {
     value     = join(",", local.resolved_public_subnets)
   }
 
-  # HTTPS listener + cert
-  setting {
-    namespace = "aws:elbv2:listener:443"
-    name      = "ListenerEnabled"
-    value     = "true"
-  }
-
-  setting {
-    namespace = "aws:elbv2:listener:443"
-    name      = "Protocol"
-    value     = "HTTPS"
-  }
-
-  setting {
-    namespace = "aws:elbv2:listener:443"
-    name      = "SSLCertificateArns"
-    value     = var.cert_arn
-  }
-
-  # Redirect HTTP -> HTTPS
-  setting {
-    namespace = "aws:elbv2:listener:80"
-    name      = "ListenerEnabled"
-    value     = "true"
-  }
-
-  setting {
-    namespace = "aws:elbv2:listener:80"
-    name      = "RedirectHTTPToHTTPS"
-    value     = "true"
-  }
-
 
 	# EB control plane permissions (shared across stacks)
 	setting {
@@ -159,7 +127,49 @@ resource "aws_elastic_beanstalk_environment" "this" {
     value     = aws_security_group.eb_instance.id
   }
 
+  # Load Balancer Settings - Start
 
+  # Ensure ALB (not Classic)
+  setting {
+    namespace = "aws:elasticbeanstalk:environment"
+    name      = "LoadBalancerType"
+    value     = "application"
+  }
+
+  # Listener :80 enabled (NO RedirectHTTPToHTTPS here)
+  setting {
+    namespace = "aws:elbv2:listener:80"
+    name      = "ListenerEnabled"
+    value     = "true"
+  }
+
+  setting {
+    namespace = "aws:elbv2:listener:80"
+    name      = "Protocol"
+    value     = "HTTP"
+  }
+
+  # Listener :443 enabled
+  setting {
+    namespace = "aws:elbv2:listener:443"
+    name      = "ListenerEnabled"
+    value     = "true"
+  }
+
+  setting {
+    namespace = "aws:elbv2:listener:443"
+    name      = "Protocol"
+    value     = "HTTPS"
+  }
+
+  setting {
+    namespace = "aws:elbv2:listener:443"
+    name      = "SSLCertificateArns"
+    value     = var.cert_arn
+  }
+
+
+  # Load Balancer Settings - End
 
   dynamic "setting" {
     for_each = local.env_vars
@@ -180,4 +190,35 @@ resource "aws_elastic_beanstalk_environment" "this" {
 	}
   
   
+}
+
+# EB exports the load balancer ARN(s) in load_balancers — look up by ARN
+data "aws_lb" "eb_alb" {
+  arn        = aws_elastic_beanstalk_environment.this.load_balancers[0]
+  depends_on = [aws_elastic_beanstalk_environment.this]
+}
+
+data "aws_lb_listener" "http_80" {
+  load_balancer_arn = data.aws_lb.eb_alb.arn
+  port              = 80
+}
+
+resource "aws_lb_listener_rule" "redirect_http_to_https" {
+  listener_arn = data.aws_lb_listener.http_80.arn
+  priority     = 10
+
+  action {
+    type = "redirect"
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+
+  condition {
+    path_pattern {
+      values = ["/*"]
+    }
+  }
 }

@@ -34,23 +34,28 @@ module "eb_api" {
 
   cert_arn = module.api_cert.cert_arn
 
-  environment_variables = merge(
-    {
-      APP_ENV = "stage"
-      # app config
-      DB_HOST = module.db.endpoint
-      DB_NAME = module.db.db_name
-      DB_PORT = tostring(module.db.port)
-      DB_USER = var.db_username
-      DB_PASS = var.db_password
+	environment_variables = merge(
+	  {
+		APP_ENV = var.env
 
-      S3_BUCKET = module.app_bucket.bucket_name
+		# app config (temporary - we'll replace with Secrets Manager shortly)
+		DB_HOST = module.db.endpoint
+		DB_NAME = module.db.db_name
+		DB_PORT = tostring(module.db.port)
+		DB_USER = var.db_username
+		# DB_PASS = var.db_password   # <-- REMOVE THIS LINE
 
-      COGNITO_USER_POOL_ID     = module.cognito.user_pool_id
-      COGNITO_USER_POOL_CLIENT = module.cognito.user_pool_client_id
-    },
-    var.api_env_vars
-  )
+		# New: tell the app which secret to read (we'll create it next step)
+		BESPRY_CONFIG_SECRET_ID = "bespry/${var.env}/config"
+
+		S3_BUCKET = module.app_bucket.bucket_name
+
+		COGNITO_USER_POOL_ID     = module.cognito.user_pool_id
+		COGNITO_USER_POOL_CLIENT = module.cognito.user_pool_client_id
+	  },
+	  var.api_env_vars
+)
+
 
   service_role_arn      = var.eb_service_role_arn
   instance_profile_name = aws_iam_instance_profile.api_instance_profile.name
