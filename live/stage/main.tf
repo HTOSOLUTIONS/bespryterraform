@@ -8,6 +8,30 @@ data "aws_route53_zone" "root" {
 # No idea
 data "aws_caller_identity" "current" {}
 
+locals {
+  logging_suffix = "_${var.env}"
+
+  api_logging = {
+    Controllers = "APINlog${local.logging_suffix}"
+    Microsoft  = "APINLog_MicrosoftLogs${local.logging_suffix}"
+    Warnings   = "APINLogWarnings${local.logging_suffix}"
+    Errors     = "APINLogErrors${local.logging_suffix}"
+  }
+
+  dotnet_aws_env = {
+    "AWS__Region"               = var.aws_region
+
+    "AWS__Cognito__Region"      = var.aws_region
+    "AWS__Cognito__PoolId"      = module.cognito.user_pool_id
+    "AWS__Cognito__ClientId"    = module.cognito.user_pool_client_id
+
+    "AWS__Logging__Controllers" = local.api_logging.Controllers
+    "AWS__Logging__Microsoft"   = local.api_logging.Microsoft
+    "AWS__Logging__Warnings"    = local.api_logging.Warnings
+    "AWS__Logging__Errors"      = local.api_logging.Errors
+  }
+
+}
 
 
 # 1) ACM cert for api.stage.bespry.net, DNS-validated in Route53
@@ -39,10 +63,10 @@ module "eb_api" {
 		APP_ENV = var.env
 
 		# app config (temporary - we'll replace with Secrets Manager shortly)
-		DB_HOST = module.db.endpoint
-		DB_NAME = module.db.db_name
-		DB_PORT = tostring(module.db.port)
-		DB_USER = var.db_username
+		# DB_HOST = module.db.endpoint
+		# DB_NAME = module.db.db_name
+		# DB_PORT = tostring(module.db.port)
+		# DB_USER = var.db_username
 		# DB_PASS = var.db_password   # <-- REMOVE THIS LINE
 
 		# New: tell the app which secret to read (we'll create it next step)
@@ -50,9 +74,8 @@ module "eb_api" {
 
 		S3_BUCKET = module.app_bucket.bucket_name
 
-		COGNITO_USER_POOL_ID     = module.cognito.user_pool_id
-		COGNITO_USER_POOL_CLIENT = module.cognito.user_pool_client_id
 	  },
+	  local.dotnet_aws_env,    # <-- this is the new .NET config structure
 	  var.api_env_vars
 )
 
