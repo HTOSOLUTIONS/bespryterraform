@@ -1,0 +1,20 @@
+{
+    "UserPoolClient": {
+        "UserPoolId": "us-east-2_3nQp8UbQL",
+        "ClientName": "bespry-stage-web",
+        "ClientId": "42dh2uv1ch4gh6rqo6ie0u0nur",
+        "LastModifiedDate": "2026-01-26T08:42:09.478000-05:00",
+        "CreationDate": "2026-01-26T08:42:09.478000-05:00",
+        "RefreshTokenValidity": 30,
+        "TokenValidityUnits": {},
+        "ExplicitAuthFlows": [
+            "ALLOW_REFRESH_TOKEN_AUTH",
+            "ALLOW_USER_PASSWORD_AUTH",
+            "ALLOW_USER_SRP_AUTH"
+        ],
+        "AllowedOAuthFlowsUserPoolClient": false,
+        "EnableTokenRevocation": true,
+        "EnablePropagateAdditionalUserContextData": false,
+        "AuthSessionValidity": 3
+    }
+}

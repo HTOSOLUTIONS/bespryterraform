@@ -5,7 +5,7 @@ variable "aws_region" {
 
 variable "env" {
   type    = string
-  default = "dev"
+  default = "demo"
 }
 
 variable "root_domain" {
@@ -13,10 +13,10 @@ variable "root_domain" {
   default = "bespry.net"
 }
 
-# Creates api.dev.bespry.net
+# Creates api.demo.bespry.net
 variable "api_subdomain" {
   type    = string
-  default = "api.dev"
+  default = "api.demo"
 }
 
 # EB sizing (POC defaults)
@@ -105,9 +105,4 @@ variable "solution_stack_name" {
   type        = string
   default     = null
   description = "Optional: pin EB platform version for this environment."
-}
-
-variable "enable_acm" {
-  type    = bool
-  default = false
 }

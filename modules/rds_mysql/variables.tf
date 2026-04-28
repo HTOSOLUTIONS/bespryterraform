@@ -53,9 +53,15 @@ variable "publicly_accessible" {
 
 # Permanent: allow MySQL ingress from this SG (your EB instances SG)
 variable "allowed_security_group_id" {
-  type    = string
-  default = null
+  type        = string
+  description = "Security group ID allowed to access RDS on db_port (typically the EB instances SG)."
+
+  validation {
+    condition     = length(var.allowed_security_group_id) > 0
+    error_message = "allowed_security_group_id must be a non-empty security group id (sg-...)."
+  }
 }
+
 
 # Temporary: allow MySQL ingress from your dev machine (e.g. "47.x.x.x/32")
 variable "developer_cidr" {

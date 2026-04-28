@@ -1,5 +1,5 @@
 api_env_vars = {
-  ASPNETCORE_ENVIRONMENT = "stage"
+  ASPNETCORE_ENVIRONMENT = "demo"
 }
 
 # Pins the Solution Stack Name used in Elastic Beanstalk

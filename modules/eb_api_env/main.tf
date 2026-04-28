@@ -19,14 +19,17 @@ locals {
 
   resolved_public_subnets = (
     var.public_subnet_ids != null && length(var.public_subnet_ids) > 0
-  ) ? var.public_subnet_ids : data.aws_subnets.default_in_vpc.ids
+  ) ? var.public_subnet_ids : sort(data.aws_subnets.default_in_vpc.ids)
 
   env_vars = var.environment_variables
 }
 
-resource "aws_elastic_beanstalk_application" "this" {
-  name = var.app_name
-}
+
+# Removed to implement shared environment
+# data "aws_elastic_beanstalk_application" "this" {
+#   name = var.app_name
+# }
+
 
 resource "aws_security_group" "eb_instance" {
   name        = "${var.env_name}-eb-instances"
@@ -45,6 +48,7 @@ resource "aws_security_group" "eb_instance" {
 
 resource "aws_security_group_rule" "ssh_from_dev" {
   count             = var.ssh_ingress_cidr != null ? 1 : 0
+  
   type              = "ingress"
   security_group_id = aws_security_group.eb_instance.id
 
@@ -60,9 +64,10 @@ resource "aws_security_group_rule" "ssh_from_dev" {
 
 resource "aws_elastic_beanstalk_environment" "this" {
   name        = var.env_name
-  application = aws_elastic_beanstalk_application.this.name
+  application = var.application_name
 
-  solution_stack_name = data.aws_elastic_beanstalk_solution_stack.dotnet8_al2023.name
+  solution_stack_name = coalesce(var.solution_stack_name, data.aws_elastic_beanstalk_solution_stack.dotnet8_al2023.name)
+
 
   setting {
     namespace = "aws:elasticbeanstalk:environment"
@@ -121,6 +126,13 @@ resource "aws_elastic_beanstalk_environment" "this" {
 	  value     = var.instance_profile_name
 	}
 
+	setting {
+	  namespace = "aws:autoscaling:launchconfiguration"
+	  name      = "DisableIMDSv1"
+	  value     = "true"
+	}
+
+
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "SecurityGroups"
@@ -136,37 +148,47 @@ resource "aws_elastic_beanstalk_environment" "this" {
     value     = "application"
   }
 
+  # ALB automatically adds listener for port 80
   # Listener :80 enabled (NO RedirectHTTPToHTTPS here)
-  setting {
-    namespace = "aws:elbv2:listener:80"
-    name      = "ListenerEnabled"
-    value     = "true"
-  }
+  # setting {
+  #  namespace = "aws:elbv2:listener:80"
+  #  name      = "ListenerEnabled"
+  #  value     = "true"
+  # }
 
-  setting {
-    namespace = "aws:elbv2:listener:80"
-    name      = "Protocol"
-    value     = "HTTP"
-  }
+  # setting {
+  #  namespace = "aws:elbv2:listener:80"
+  #  name      = "Protocol"
+  #  value     = "HTTP"
+  # }
 
   # Listener :443 enabled
-  setting {
-    namespace = "aws:elbv2:listener:443"
-    name      = "ListenerEnabled"
-    value     = "true"
-  }
+	dynamic "setting" {
+	  for_each = var.cert_arn != null ? [1] : []
+	  content {
+		namespace = "aws:elbv2:listener:443"
+		name      = "ListenerEnabled"
+		value     = "true"
+	  }
+	}
 
-  setting {
-    namespace = "aws:elbv2:listener:443"
-    name      = "Protocol"
-    value     = "HTTPS"
-  }
+	dynamic "setting" {
+	  for_each = var.cert_arn != null ? [1] : []
+	  content {
+		namespace = "aws:elbv2:listener:443"
+		name      = "Protocol"
+		value     = "HTTPS"
+	  }
+	}
 
-  setting {
-    namespace = "aws:elbv2:listener:443"
-    name      = "SSLCertificateArns"
-    value     = var.cert_arn
-  }
+	dynamic "setting" {
+	  for_each = var.cert_arn != null ? [1] : []
+	  content {
+		namespace = "aws:elbv2:listener:443"
+		name      = "SSLCertificateArns"
+		value     = var.cert_arn
+	  }
+	}
 
 
   # Load Balancer Settings - End
@@ -176,7 +198,7 @@ resource "aws_elastic_beanstalk_environment" "this" {
     content {
       namespace = "aws:elasticbeanstalk:application:environment"
       name      = setting.key
-      value     = setting.value
+      value     = tostring(setting.value)
     }
   }
   
@@ -193,18 +215,25 @@ resource "aws_elastic_beanstalk_environment" "this" {
 }
 
 # EB exports the load balancer ARN(s) in load_balancers — look up by ARN
+# EB exports the load balancer ARN(s) in load_balancers — look up by ARN
 data "aws_lb" "eb_alb" {
   arn        = aws_elastic_beanstalk_environment.this.load_balancers[0]
   depends_on = [aws_elastic_beanstalk_environment.this]
 }
 
 data "aws_lb_listener" "http_80" {
+  # count             = var.cert_arn != null ? 1 : 0
+  count             = var.enable_http_to_https_redirect ? 1 : 0
   load_balancer_arn = data.aws_lb.eb_alb.arn
   port              = 80
 }
 
 resource "aws_lb_listener_rule" "redirect_http_to_https" {
-  listener_arn = data.aws_lb_listener.http_80.arn
+  # Changing Rule
+  # count        = var.cert_arn != null ? 1 : 0
+  count        = var.enable_http_to_https_redirect ? 1 : 0
+  
+  listener_arn = data.aws_lb_listener.http_80[0].arn
   priority     = 10
 
   action {

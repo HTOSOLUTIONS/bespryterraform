@@ -1,0 +1,9 @@
+{
+    "UserPoolClients": [
+        {
+            "ClientId": "3jlv9tcrkhc56m5ftmflpa5qoh",
+            "UserPoolId": "us-east-2_8cWDQpmJK",
+            "ClientName": "amplifyAuthUserPoolAppClient2626C6F8-xVSYg9xPWfsn"
+        }
+    ]
+}
