@@ -100,3 +100,9 @@ variable "db_publicly_accessible" {
   type    = bool
   default = false
 }
+
+variable "solution_stack_name" {
+  type        = string
+  default     = null
+  description = "Optional: pin EB platform version for this environment."
+}

@@ -47,3 +47,24 @@ variable "ssh_ingress_cidr" {
   default     = null
 }
 
+variable "application_name" {
+  type        = string
+  description = "Existing Elastic Beanstalk application name (shared across environments)"
+}
+
+variable "solution_stack_name" {
+  type        = string
+  description = "Optional: pin EB solution stack name to avoid auto-upgrading when most_recent changes."
+  default     = null
+}
+
+variable "manage_http_listener" {
+  type        = bool
+  description = "Whether to manage ALB HTTP(80) listener settings via EB environment settings."
+  default     = false
+}
+
+variable "enable_http_to_https_redirect" {
+  type    = bool
+  default = true
+}

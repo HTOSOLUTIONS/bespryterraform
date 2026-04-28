@@ -1,0 +1,9 @@
+{
+    "UserPoolClients": [
+        {
+            "ClientId": "42dh2uv1ch4gh6rqo6ie0u0nur",
+            "UserPoolId": "us-east-2_3nQp8UbQL",
+            "ClientName": "bespry-stage-web"
+        }
+    ]
+}

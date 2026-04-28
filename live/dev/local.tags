@@ -1,0 +1,7 @@
+locals {
+  tags = {
+    Project     = "BeSpry"
+    Environment = var.env
+    ManagedBy   = "Terraform"
+  }
+}

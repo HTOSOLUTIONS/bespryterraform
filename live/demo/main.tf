@@ -34,7 +34,7 @@ locals {
 }
 
 
-# 1) ACM cert for api.$(env).bespry.net, DNS-validated in Route53
+# 1) ACM cert for api.demo.bespry.net, DNS-validated in Route53
 module "api_cert" {
   source  = "../../modules/acm_api_cert"
   domain  = local.api_fqdn
@@ -92,7 +92,7 @@ module "eb_api" {
 }
 
 # 3) Route53 record -> EB environment CNAME
-resource "aws_route53_record" "api_stage" {
+resource "aws_route53_record" "api_demo" {
   depends_on = [module.eb_api] # ensures env exists before DNS
   zone_id    = data.aws_route53_zone.root.zone_id
   name       = local.api_fqdn

@@ -3,7 +3,7 @@ output "api_fqdn" {
 }
 
 output "acm_cert_arn" {
-  value = var.enable_acm ? module.api_cert[0].cert_arn : null
+  value = module.api_cert.cert_arn
 }
 
 output "eb_environment_name" {
@@ -12,12 +12,4 @@ output "eb_environment_name" {
 
 output "eb_environment_cname" {
   value = module.eb_api.environment_cname
-}
-
-output "reminders_queue_url" {
-  value = aws_sqs_queue.reminders.id
-}
-
-output "reminders_queue_arn" {
-  value = aws_sqs_queue.reminders.arn
 }

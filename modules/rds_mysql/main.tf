@@ -32,8 +32,6 @@ resource "aws_security_group" "rds" {
 
 # Permanent: allow MySQL from EB instances SG only
 resource "aws_vpc_security_group_ingress_rule" "from_app_sg" {
-  count = var.allowed_security_group_id != null ? 1 : 0
-
   security_group_id            = aws_security_group.rds.id
   referenced_security_group_id = var.allowed_security_group_id
 
@@ -44,9 +42,14 @@ resource "aws_vpc_security_group_ingress_rule" "from_app_sg" {
   description = "MySQL from EB instance SG"
 }
 
+
 # Temporary: allow MySQL from your dev machine CIDR (e.g., x.x.x.x/32)
+locals {
+  create_dev_cidr_rule = var.developer_cidr != null
+}
+
 resource "aws_vpc_security_group_ingress_rule" "from_dev_cidr" {
-  count = var.developer_cidr != null ? 1 : 0
+  for_each = local.create_dev_cidr_rule ? { "rule" = true } : {}
 
   security_group_id = aws_security_group.rds.id
   cidr_ipv4         = var.developer_cidr
@@ -57,6 +60,7 @@ resource "aws_vpc_security_group_ingress_rule" "from_dev_cidr" {
 
   description = "TEMP MySQL from developer machine"
 }
+
 
 # Allow RDS outbound (AWS recommended default stance)
 resource "aws_vpc_security_group_egress_rule" "all_outbound" {

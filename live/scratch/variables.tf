@@ -106,8 +106,3 @@ variable "solution_stack_name" {
   default     = null
   description = "Optional: pin EB platform version for this environment."
 }
-
-variable "enable_acm" {
-  type    = bool
-  default = false
-}
