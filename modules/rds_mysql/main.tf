@@ -32,8 +32,10 @@ resource "aws_security_group" "rds" {
 
 # Permanent: allow MySQL from EB instances SG only
 resource "aws_vpc_security_group_ingress_rule" "from_app_sg" {
+  for_each = var.allowed_security_group_ids
+
   security_group_id            = aws_security_group.rds.id
-  referenced_security_group_id = var.allowed_security_group_id
+  referenced_security_group_id = each.value
 
   ip_protocol = "tcp"
   from_port   = var.db_port

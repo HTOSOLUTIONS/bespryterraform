@@ -1,5 +1,6 @@
 api_env_vars = {
   ASPNETCORE_ENVIRONMENT = "stage"
+  DB_PROVIDER = "mysql"
 }
 
 # Pins the Solution Stack Name used in Elastic Beanstalk
@@ -10,3 +11,4 @@ ssh_ingress_cidr = "47.134.129.33/32"
 developer_cidr   = "47.134.129.33/32"
 db_publicly_accessible = true
 
+enable_acm = true
