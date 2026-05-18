@@ -11,7 +11,11 @@ module "db" {
   developer_cidr = var.developer_cidr
 
   # PERMANENT: allow MySQL from EB EC2 instances only
-  allowed_security_group_id = module.eb_api.instance_security_group_id
+  allowed_security_group_ids = {
+    api     = module.eb_api.instance_security_group_id
+    service = module.eb_service.instance_security_group_id
+  }
+
 
 
   publicly_accessible = var.db_publicly_accessible

@@ -4,15 +4,20 @@ resource "aws_secretsmanager_secret" "bespry_config" {
   tags = local.tags
 }
 
+locals {
+  # "foo.rds.amazonaws.com:3306" -> "foo.rds.amazonaws.com"
+  db_host = split(":", module.db.endpoint)[0]
+}
+
 resource "aws_secretsmanager_secret_version" "bespry_config_current" {
   secret_id = aws_secretsmanager_secret.bespry_config.id
 
   secret_string = jsonencode({
-    host     = module.db.endpoint
+    host     = local.db_host
+    port     = tostring(module.db.port)
     dbname   = module.db.db_name
     username = var.db_username
     password = var.db_password
-    port     = tostring(module.db.port)
   })
 }
 

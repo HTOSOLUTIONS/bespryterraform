@@ -51,14 +51,15 @@ variable "publicly_accessible" {
   default = false
 }
 
-# Permanent: allow MySQL ingress from this SG (your EB instances SG)
-variable "allowed_security_group_id" {
-  type        = string
-  description = "Security group ID allowed to access RDS on db_port (typically the EB instances SG)."
+# Permanent: allow PostgreSQL ingress from these SGs
+variable "allowed_security_group_ids" {
+  type        = map(string)
+  default     = {}
+  description = "Security group IDs allowed to access RDS on db_port (typically EB instance SGs)."
 
   validation {
-    condition     = length(var.allowed_security_group_id) > 0
-    error_message = "allowed_security_group_id must be a non-empty security group id (sg-...)."
+    condition     = length(var.allowed_security_group_ids) > 0
+    error_message = "allowed_security_group_ids must contain at least one security group id."
   }
 }
 
