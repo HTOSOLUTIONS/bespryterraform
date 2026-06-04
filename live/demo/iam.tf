@@ -30,3 +30,25 @@ resource "aws_iam_instance_profile" "api_instance_profile" {
   name = "bespry-api-ec2-role-${var.env}"
   role = aws_iam_role.api_ec2_role.name
 }
+
+data "aws_iam_policy_document" "api_sqs_reminders" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "sqs:SendMessage",
+      "sqs:ReceiveMessage",
+      "sqs:DeleteMessage",
+      "sqs:GetQueueAttributes",
+      "sqs:ChangeMessageVisibility"
+    ]
+    resources = [
+      aws_sqs_queue.reminders.arn
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "api_sqs_reminders" {
+  name   = "bespry-${var.env}-sqs-reminders"
+  role   = aws_iam_role.api_ec2_role.id
+  policy = data.aws_iam_policy_document.api_sqs_reminders.json
+}
