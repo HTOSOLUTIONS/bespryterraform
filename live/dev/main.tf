@@ -144,6 +144,7 @@ module "eb_service" {
     {
       APP_ENV                 = var.env
       BESPRY_CONFIG_SECRET_ID = "bespry/${var.env}/config"
+      RUN_HOSTED_SERVICES   = "true" # <-- this tells the app to run the background services when it starts up (instead of just the API)
     },
     local.dotnet_service_aws_env # <-- this is the new .NET config structure
   )
