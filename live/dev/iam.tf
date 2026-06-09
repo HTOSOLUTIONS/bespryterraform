@@ -52,3 +52,21 @@ resource "aws_iam_role_policy" "api_sqs_reminders" {
   role   = aws_iam_role.api_ec2_role.id
   policy = data.aws_iam_policy_document.api_sqs_reminders.json
 }
+
+data "aws_iam_policy_document" "api_sms" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "sms-voice:SendTextMessage"
+    ]
+
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_role_policy" "api_sms" {
+  name   = "bespry-${var.env}-sms"
+  role   = aws_iam_role.api_ec2_role.id
+  policy = data.aws_iam_policy_document.api_sms.json
+}
