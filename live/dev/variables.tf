@@ -111,3 +111,15 @@ variable "enable_acm" {
   type    = bool
   default = false
 }
+
+variable "sms_origination_identity" {
+  type        = string
+  description = "AWS SMS phone number ARN"
+  default     = null
+}
+
+variable "sms_configuration_set_name" {
+  type        = string
+  description = "AWS SMS configuration set name"
+  default     = null
+}

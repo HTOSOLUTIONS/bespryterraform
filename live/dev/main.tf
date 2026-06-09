@@ -40,8 +40,10 @@ locals {
     "AWS__Cognito__PoolId"   = module.cognito.user_pool_id
     "AWS__Cognito__ClientId" = module.cognito.user_pool_client_id
 
-
     "Sqs__QueueUrl" = aws_sqs_queue.reminders.url
+
+    "AWS__Sms__OriginationIdentity"  = var.sms_origination_identity
+    "AWS__Sms__ConfigurationSetName" = var.sms_configuration_set_name
 
   }
 
@@ -54,6 +56,10 @@ locals {
     "AWS__Logging__Info"      = local.service_logging.Info
 
     "Sqs__QueueUrl" = aws_sqs_queue.reminders.url
+
+    "AWS__Sms__OriginationIdentity"  = var.sms_origination_identity
+    "AWS__Sms__ConfigurationSetName" = var.sms_configuration_set_name
+
 
   }
 
