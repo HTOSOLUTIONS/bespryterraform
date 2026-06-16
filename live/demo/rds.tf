@@ -12,8 +12,8 @@ module "db" {
 
   # PERMANENT: allow MySQL from EB EC2 instances only
   allowed_security_group_ids = {
-    api     = module.eb_api.instance_security_group_id
-    service = module.eb_service.instance_security_group_id
+    eb_api     = module.eb_api.instance_security_group_id
+    eb_service = module.eb_service.instance_security_group_id
   }
 
 

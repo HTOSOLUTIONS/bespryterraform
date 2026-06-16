@@ -43,6 +43,9 @@ locals {
 
     "Sqs__QueueUrl" = aws_sqs_queue.reminders.url
 
+    "AWS__Sms__OriginationIdentity"  = var.sms_origination_identity
+    "AWS__Sms__ConfigurationSetName" = var.sms_configuration_set_name
+
   }
 
   dotnet_service_aws_env = {
@@ -54,6 +57,9 @@ locals {
     "AWS__Logging__Info"      = local.service_logging.Info
 
     "Sqs__QueueUrl" = aws_sqs_queue.reminders.url
+
+    "AWS__Sms__OriginationIdentity"  = var.sms_origination_identity
+    "AWS__Sms__ConfigurationSetName" = var.sms_configuration_set_name
 
 
 

@@ -64,11 +64,11 @@ variable "allowed_security_group_ids" {
 }
 
 
-# Temporary: allow MySQL ingress from your dev machine (e.g. "47.x.x.x/32")
+# Temporary: allow MySQL ingress from developer machine CIDRs (e.g. ["47.x.x.x/32"])
 variable "developer_cidr" {
-  description = "Optional TEMP ingress CIDR (e.g., your laptop public IP /32) for MySQL."
-  type        = string
-  default     = null
+  description = "Optional TEMP ingress CIDR list (typically laptop public IPs as /32) for MySQL."
+  type        = list(string)
+  default     = []
 }
 
 

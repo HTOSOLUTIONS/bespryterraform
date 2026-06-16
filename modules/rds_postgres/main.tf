@@ -44,18 +44,12 @@ resource "aws_vpc_security_group_ingress_rule" "from_app_sg" {
   description = "PostgreSQL from EB instance SG"
 }
 
-# Temporary: allow MySQL from your dev machine CIDR (e.g., x.x.x.x/32)
-locals {
-  create_dev_cidr_rule = var.developer_cidr != null
-}
-
 resource "aws_vpc_security_group_ingress_rule" "from_dev_cidr" {
-  
-  for_each = local.create_dev_cidr_rule ? { rule = true } : {}
+  for_each = toset(var.developer_cidr)
 
 
   security_group_id = aws_security_group.rds.id
-  cidr_ipv4         = var.developer_cidr
+  cidr_ipv4         = each.value
 
   ip_protocol = "tcp"
   from_port   = var.db_port
