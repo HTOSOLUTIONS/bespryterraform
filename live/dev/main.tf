@@ -119,7 +119,7 @@ module "eb_api" {
   service_role_arn      = var.eb_service_role_arn
   instance_profile_name = aws_iam_instance_profile.api_instance_profile.name
 
-  ec2_key_name     = var.ec2_key_name
+  ec2_key_name     = aws_key_pair.eb_ssh.key_name
   ssh_ingress_cidr = var.ssh_ingress_cidr
 
 }
@@ -150,7 +150,7 @@ module "eb_service" {
     {
       APP_ENV                 = var.env
       BESPRY_CONFIG_SECRET_ID = "bespry/${var.env}/config"
-      RUN_HOSTED_SERVICES   = "true" # <-- this tells the app to run the background services when it starts up (instead of just the API)
+      RUN_HOSTED_SERVICES     = "true" # <-- this tells the app to run the background services when it starts up (instead of just the API)
     },
     local.dotnet_service_aws_env # <-- this is the new .NET config structure
   )
@@ -158,7 +158,7 @@ module "eb_service" {
   service_role_arn      = var.eb_service_role_arn
   instance_profile_name = aws_iam_instance_profile.api_instance_profile.name
 
-  ec2_key_name     = var.ec2_key_name
+  ec2_key_name     = aws_key_pair.eb_ssh.key_name
   ssh_ingress_cidr = var.ssh_ingress_cidr
 }
 

@@ -29,7 +29,7 @@ variable "allocated_storage" {
 # Examples: "15.7", "16.3", etc.
 variable "engine_version" {
   type    = string
-  default = "16.10"
+  default = "16.13"
 }
 
 variable "db_port" {
@@ -64,11 +64,11 @@ variable "allowed_security_group_ids" {
   }
 }
 
-# Temporary: allow PostgreSQL ingress from your dev machine (e.g. "47.x.x.x/32")
+# Temporary: allow PostgreSQL ingress from developer machine CIDRs (e.g. ["47.x.x.x/32"])
 variable "developer_cidr" {
-  description = "Optional TEMP ingress CIDR (e.g., your laptop public IP /32) for PostgreSQL."
-  type        = string
-  default     = null
+  description = "Optional TEMP ingress CIDR list (typically laptop public IPs as /32) for PostgreSQL."
+  type        = list(string)
+  default     = []
 }
 
 variable "tags" {
