@@ -1,5 +1,5 @@
 module "db" {
-  source     = "../../modules/rds_mysql"
+  source     = "../../modules/rds_postgres"
   identifier = "bespry-stage-db"
 
   db_name  = var.db_name
@@ -7,17 +7,14 @@ module "db" {
   password = var.db_password
   tags     = local.tags
 
-  # TEMP: allow MySQL from your dev machine (Workbench)
+  # TEMP: allow PostgreSQL from your developer machine
   developer_cidr = var.developer_cidr
 
-  # PERMANENT: allow MySQL from EB EC2 instances only
-  allowed_security_group_ids = {
-    eb_api     = module.eb_api.instance_security_group_id
-    eb_service = module.eb_service.instance_security_group_id
-  }
-
+  # PERMANENT: allow PostgreSQL from EB EC2 instances only
+  allowed_security_group_ids = [
+    module.eb_api.instance_security_group_id,
+    module.eb_service.instance_security_group_id
+  ]
 
   publicly_accessible = var.db_publicly_accessible
-
-
 }

@@ -13,9 +13,9 @@ locals {
 
   api_logging = {
     Controllers = "APINlog${local.logging_suffix}"
-    Microsoft  = "APINLog_MicrosoftLogs${local.logging_suffix}"
-    Warnings   = "APINLogWarnings${local.logging_suffix}"
-    Errors     = "APINLogErrors${local.logging_suffix}"
+    Microsoft   = "APINLog_MicrosoftLogs${local.logging_suffix}"
+    Warnings    = "APINLogWarnings${local.logging_suffix}"
+    Errors      = "APINLogErrors${local.logging_suffix}"
     Info        = "APINLogInfo${local.logging_suffix}"
   }
 
@@ -80,12 +80,12 @@ module "api_cert" {
 module "eb_api" {
   source = "../../modules/eb_api_env"
 
-  app_name = "bespry-api"
-  env_name = "bespry-api-${var.env}"
-  env      = var.env
-  application_name = "bespry-api"
+  app_name                      = "bespry-api"
+  env_name                      = "bespry-api-${var.env}"
+  env                           = var.env
+  application_name              = "bespry-api"
   enable_http_to_https_redirect = true
-  solution_stack_name = var.solution_stack_name
+  solution_stack_name           = var.solution_stack_name
 
 
   instance_type = var.instance_type
@@ -97,26 +97,26 @@ module "eb_api" {
 
   cert_arn = var.enable_acm ? module.api_cert[0].cert_arn : null
 
-	environment_variables = merge(
-	  {
-		APP_ENV = var.env
+  environment_variables = merge(
+    {
+      APP_ENV = var.env
 
-		# app config (temporary - we'll replace with Secrets Manager shortly)
-		# DB_HOST = module.db.endpoint
-		# DB_NAME = module.db.db_name
-		# DB_PORT = tostring(module.db.port)
-		# DB_USER = var.db_username
-		# DB_PASS = var.db_password   # <-- REMOVE THIS LINE
+      # app config (temporary - we'll replace with Secrets Manager shortly)
+      # DB_HOST = module.db.endpoint
+      # DB_NAME = module.db.db_name
+      # DB_PORT = tostring(module.db.port)
+      # DB_USER = var.db_username
+      # DB_PASS = var.db_password   # <-- REMOVE THIS LINE
 
-		# New: tell the app which secret to read (we'll create it next step)
-		BESPRY_CONFIG_SECRET_ID = "bespry/${var.env}/config"
+      # New: tell the app which secret to read (we'll create it next step)
+      BESPRY_CONFIG_SECRET_ID = "bespry/${var.env}/config"
 
-		S3_BUCKET = module.app_bucket.bucket_name
+      S3_BUCKET = module.app_bucket.bucket_name
 
-	  },
+    },
     local.dotnet_api_aws_env, # <-- this is the new .NET config structure
-	  var.api_env_vars
-)
+    var.api_env_vars
+  )
 
 
   service_role_arn      = var.eb_service_role_arn
@@ -153,7 +153,7 @@ module "eb_service" {
     {
       APP_ENV                 = var.env
       BESPRY_CONFIG_SECRET_ID = "bespry/${var.env}/config"
-      RUN_HOSTED_SERVICES   = "false" # <-- this tells the app to run the background services when it starts up (instead of just the API)
+      RUN_HOSTED_SERVICES     = "false" # <-- this tells the app to run the background services when it starts up (instead of just the API)
     },
     local.dotnet_service_aws_env # <-- this is the new .NET config structure
   )
