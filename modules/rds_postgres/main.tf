@@ -83,6 +83,8 @@ resource "aws_db_instance" "this" {
 
   publicly_accessible = var.publicly_accessible
 
+  storage_encrypted = true
+
   # Keep consistent with your MySQL module behavior
   skip_final_snapshot = true
 
