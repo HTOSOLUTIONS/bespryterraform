@@ -75,3 +75,16 @@ variable "tags" {
   type    = map(string)
   default = {}
 }
+
+# Set to true to enable deletion protection for the RDS instance. Defaults to 7 days.
+variable "backup_retention_period" {
+  description = "Number of days to retain RDS automated backups for point-in-time recovery"
+  type        = number
+  default     = 7
+
+  validation {
+    condition     = var.backup_retention_period >= 1 && var.backup_retention_period <= 35
+    error_message = "backup_retention_period must be between 1 and 35 days."
+  }
+}
+

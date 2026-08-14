@@ -88,5 +88,9 @@ resource "aws_db_instance" "this" {
   # Keep consistent with your MySQL module behavior
   skip_final_snapshot = true
 
+  # Backup retention period in days. Set to 0 to disable backups.
+  backup_retention_period = var.backup_retention_period
+
+
   tags = var.tags
 }
